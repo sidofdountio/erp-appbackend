@@ -1,0 +1,47 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: auth-server
+
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
+
+
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: http://localhost:9000
+
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: ${POSTGRES_DATABASE}
+        format_sql: true
+
+
+
+keys:
+  private: ${PRIVATE_KEY}
+  public: ${PUBLIC_KEY}
+
+ui:
+  app:
+    url: ${UI_APP_URL}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: trace
