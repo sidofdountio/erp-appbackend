@@ -1,10 +1,14 @@
 package com.sidof.app.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.sidof.app.model.Permission;
+import com.sidof.app.model.User;
+import com.sidof.app.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -12,24 +16,27 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.*;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -44,6 +51,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * <blockquote><pre>
@@ -60,6 +68,7 @@ import java.util.UUID;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // ========================= AUTHORIZATION SERVER =========================
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
@@ -81,62 +90,100 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // ========================= DEFAULT SECURITY =========================
     @Bean
     @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            DaoAuthenticationProvider daoAuthenticationProvider) throws Exception { // Inject it here
+
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
+        // Link your DB-backed provider to this chain
+        http.authenticationProvider(daoAuthenticationProvider);
+
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**").permitAll()
+                .requestMatchers("/login", "/css/**", "/js/**","/error").permitAll()
                 .requestMatchers(HttpMethod.POST, "/logout").permitAll()
+                .requestMatchers("/mfa").hasAuthority("MFA_REQUIRED")
                 .anyRequest().authenticated()
         );
 
         http.formLogin(login -> login
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
-                // CHANGE: set to 'false' so it redirects back to the original OAuth2 request
-                .defaultSuccessUrl("/oauth2/authorize", false)
-                .usernameParameter("email")
+//                .successHandler(new MfaAuthenticationHandler("/mfa", "MFA_REQUIRED"))
                 .failureHandler(new SimpleUrlAuthenticationFailureHandler("/login?error"))
                 .permitAll()
         );
 
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("http://localhost:9000/login?logout") // Redirect back to login
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+        );
 
         return http.build();
     }
 
 
+    // ========================= REGISTERED CLIENT (JDBC) =========================
     @Bean
-    public RegisteredClientRepository registeredClientRepository(BCryptPasswordEncoder encoder) {
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("order-client")
-                .clientSecret(encoder.encode("secret"))
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:3000/callback")
-                .scope("ORDER_READ")
-                .scope("ORDER_WRITE")
-                .build();
+    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
+        return new JdbcRegisteredClientRepository(jdbcTemplate);
+    }
 
-        RegisteredClient shop = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("shop-client")
-                .clientSecret(encoder.encode("secret"))
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:3000/callback")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("SHOP_READ")
-                .scope("SHOP_WRITE")
-                .build();
+    @Bean
+    public OAuth2AuthorizationService authorizationService(
+            JdbcTemplate jdbcTemplate,
+            RegisteredClientRepository registeredClientRepository) {
 
-        return new InMemoryRegisteredClientRepository(client,shop);
+        JdbcOAuth2AuthorizationService service =
+                new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+
+        // This mapper supports .setObjectMapper()
+        JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper =
+                new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
+
+        rowMapper.setObjectMapper(createObjectMapperWithUserSupport());
+        service.setAuthorizationRowMapper(rowMapper);
+
+        return service;
+    }
+
+    @Bean
+    public OAuth2AuthorizationConsentService authorizationConsentService(
+            JdbcTemplate jdbcTemplate,
+            RegisteredClientRepository registeredClientRepository
+    ) {
+        return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository);
+    }
+
+    private ObjectMapper createObjectMapperWithUserSupport() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
+
+        // 1. Register Standard Security & Auth Server Modules
+        objectMapper.registerModules(SecurityJackson2Modules.getModules(classLoader));
+        objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+
+        // 2. Register Hibernate Module (Tells Jackson how to read Hibernate proxies)
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module());
+
+        // 3. REGISTER ALL MIXINS (The Allowlist)
+        objectMapper.addMixIn(com.sidof.app.model.User.class, UserMixin.class);
+        objectMapper.addMixIn(com.sidof.app.model.Role.class, RoleMixin.class);
+        objectMapper.addMixIn(com.sidof.app.model.Permission.class, PermissionMixin.class);
+
+        // THE CRITICAL ADDITION: Allow the Hibernate PersistentSet class
+        objectMapper.addMixIn(org.hibernate.collection.spi.PersistentSet.class, HibernatePersistentSetMixin.class);
+
+        return objectMapper;
     }
 
 
 
-
+    // ========================= JWT / KEYS =========================
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
@@ -167,30 +214,129 @@ public class SecurityConfig {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
     }
 
-
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
 
 
-
-
+    // ========================= USERS =========================
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
+
+
+    // ========================= CUSTOM JWT CLAIMS =========================
+
     @Bean
-    public UserDetailsService userDetailsService(BCryptPasswordEncoder encoder) {
-        UserDetails user = User.builder()
-                .username("sidof@email.com")
-                .password(encoder.encode("password"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
+    public OAuth2TokenCustomizer<JwtEncodingContext> customizer() {
+        return context -> {
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+
+                // 1. Get the authorities using your existing method
+                context.getClaims().claims(claims ->
+                        claims.put("authorities", getAuthorities(context)));
+
+                // 2. Get the Principal and cast it to your AppUser
+                Object principal = context.getPrincipal().getPrincipal();
+
+                if (principal instanceof User user) {
+                    context.getClaims().claims(claims -> {
+                        claims.put("user_uuid", user.getUserUuid());
+                        claims.put("full_name", user.getFullName());
+                        claims.put("mfa_enabled", user.isMfa());
+                        claims.put("user_email", context.getPrincipal().getName());
+                        claims.put("mfa_verified", user.isMfaVerified());
+                    });
+                }
+            }
+        };
     }
+
+
+    private String getAuthorities(JwtEncodingContext context) {
+        return context.getPrincipal().getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(CustomUserDetailsService appUserDetailsService) {
+        return appUserDetailsService;
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(DaoAuthenticationProvider daoAuthenticationProvider) {
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // ========================= FULL CORS CONFIGURATION =========================

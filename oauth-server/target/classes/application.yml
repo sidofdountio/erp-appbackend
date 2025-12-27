@@ -1,5 +1,8 @@
 server:
   port: 9000
+  error:
+    include-binding-errors: always
+    include-message: always
 
 spring:
   application:
@@ -7,7 +10,6 @@ spring:
 
   profiles:
     active: ${ACTIVE_PROFILE:dev}
-
 
   security:
     oauth2:
@@ -28,7 +30,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: ${POSTGRES_DATABASE}
         format_sql: true
 
 
