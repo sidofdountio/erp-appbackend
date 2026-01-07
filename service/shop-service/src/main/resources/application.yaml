@@ -1,0 +1,7 @@
+# Application yml in shop service module
+spring:
+  application:
+    name: shop-service
+  config:
+    import: optional:configserver:http://localhost:8888
+

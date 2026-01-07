@@ -9,7 +9,6 @@
   <packaging>pom</packaging>
 
   <name>erp-app</name>
-  <!-- FIXME change it to the project's website -->
   <url>https://sidof.xyz</url>
   <modules>
     <module>oauth-server</module>
@@ -19,7 +18,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>25</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
     <spring.boot.maven.plugin.version>4.0.0</spring.boot.maven.plugin.version>
     <spring.boot.dependecies.version>4.0.0</spring.boot.dependecies.version>
   </properties>
