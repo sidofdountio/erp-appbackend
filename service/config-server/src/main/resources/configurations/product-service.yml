@@ -1,0 +1,60 @@
+# ===================================================================
+# PRODUCT SERVICE CONFIGURATION (Managed by Config Server)
+# ===================================================================
+
+server:
+  port: 9002
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/productdb
+    username: sidof
+    password: sidof1/@
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate Settings
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+#        FLYWAY
+  flyway:
+    baseline-on-migrate: true
+    enable: true
+    baseline-description: "init"
+    baseline-version: 0
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  cloud:
+    config:
+      override.system-properties: false
+
+  # Security (OAuth2)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
+
+# Eureka Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# Optional: Add Actuator for health monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,beans"
+  endpoint:
+    health:
+      show-details: always

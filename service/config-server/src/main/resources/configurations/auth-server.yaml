@@ -1,0 +1,47 @@
+server:
+  port: 9000
+  error:
+    include-binding-errors: always
+    include-message: always
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/authdb
+    username: sidof
+    password: sidof1/@
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  #  Auth
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: http://localhost:9000
+
+# Eureka Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# Optional: Add Actuator for health monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,beans"
+  endpoint:
+    health:
+      show-details: always
+
+

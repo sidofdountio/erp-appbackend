@@ -6,7 +6,6 @@ server:
   port: 9001
 
 spring:
-  # Database Configuration
   datasource:
     url: jdbc:postgresql://localhost:5433/shopdb
     username: sidof

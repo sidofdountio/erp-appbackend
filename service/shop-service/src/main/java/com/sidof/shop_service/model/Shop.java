@@ -3,6 +3,7 @@ package com.sidof.shop_service.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Table(name = "shop")
 @Setter
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -42,4 +43,10 @@ public class Shop {
 //    @NotNull
 //    @Enumerated(EnumType.STRING)
 //    private ShopCategory category;
+
+//    private String latitude;
+//    private String longitude;
+
+    @Column(name = "user_id",nullable = false,unique = true)
+    private Long userId;
 }

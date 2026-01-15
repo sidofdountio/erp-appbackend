@@ -62,7 +62,11 @@ public class DataSeeder {
             Permission userRead = createPermission("USER_READ");
             Permission userUpdate = createPermission("USER_UPDATE");
             Permission userDelete = createPermission("USER_DELETE");
+
             Permission productCreate = createPermission("PRODUCT_CREATE");
+            Permission productUpdate = createPermission("PRODUCT_UPDATE");
+            Permission productRead = createPermission("PRODUCT_READ");
+
             Permission SHOP_READ = createPermission("SHOP_READ");
             Permission SHOP_WRITE = createPermission("SHOP_WRITE");
             Permission ORDER_CREATE = createPermission("ORDER_CREATE");
@@ -71,6 +75,11 @@ public class DataSeeder {
             // 2. Create Roles
             Role userRole = createRole("USER", Set.of(userRead));
             Role adminRole = createRole("ADMIN", Set.of(userRead, userUpdate, userDelete, productCreate));
+
+            Role managerRole = createRole("MANAGER", Set.of(userRead, userUpdate, userDelete, productCreate));
+            Role merchantRole = createRole("MERCHANT", Set.of(userRead, userUpdate, userDelete, productCreate));
+
+            Role systemRole = createRole("SYSTEM", Set.of(userRead, userUpdate, userDelete, productCreate));
 
             // 3. Create Admin User
             if (userRepository.findByEmail("admin@manager.com").isEmpty()) {
@@ -99,9 +108,20 @@ public class DataSeeder {
                 user.setRole(userRole);
                 userRepository.save(user);
             }
+
+            if (userRepository.findByEmail("user@store.com").isEmpty()) {
+                User userStore = new User();
+                userStore.setUserUuid(randomUUID().toString());
+                userStore.setUsername("store11");
+                userStore.setFirstName("store");
+                userStore.setLastName("store");
+                userStore.setEmail("user@store.com");
+                userStore.setEnable(true);
+                userStore.setPassword(passwordEncoder.encode("password"));
+                userStore.setRole(userRole);
+                userRepository.save(userStore);
+            }
         };
-
-
 
     }
 
@@ -160,12 +180,14 @@ public class DataSeeder {
                         .redirectUri("http://localhost:3000/callback")
                         .scope(OidcScopes.OPENID)
                         .scope(OidcScopes.PROFILE)
+                        .scope(OidcScopes.EMAIL)
                         .scope("SHOP_READ")
                         .scope("SHOP_WRITE")
                         .scope("ORDER_READ")
                         .scope("ORDER_UPDATE")
                         .scope("PRODUCT_READ")
                         .scope("PRODUCT_CREATE")
+                        .scope("PRODUCT_DELETE")
                         .clientSettings(ClientSettings.builder()
                                 .requireAuthorizationConsent(true)
                                 .requireProofKey(true)
@@ -181,6 +203,8 @@ public class DataSeeder {
                 log.error(exception.getMessage());
             }
         }
+
+
 
 
         if (registeredClientRepository.findByClientId("admin-dashboard") == null) {

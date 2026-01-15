@@ -1,10 +1,10 @@
 package com.sidof.app.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,10 +28,11 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@Builder
 public class User implements UserDetails, Principal {
 
 
@@ -74,6 +75,14 @@ public class User implements UserDetails, Principal {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
+
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -127,21 +136,13 @@ public class User implements UserDetails, Principal {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
                 ", userUuid='" + userUuid + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", username='" + username + '\'' +
-                ", enable=" + enable +
-                ", accountLocked=" + accountLocked +
-                ", mfa=" + mfa +
-                ", mfaVerified=" + mfaVerified +
-                ", mfaSecret='" + mfaSecret + '\'' +
                 ", failedLoginAttempts=" + failedLoginAttempts +
                 ", lastLogin=" + lastLogin +
-                ", role=" + role +
                 '}';
     }
 }

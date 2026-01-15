@@ -12,14 +12,16 @@
         <module name="discovery" />
         <module name="oauth-server" />
       </profile>
-      <profile name="Annotation profile for shop-service" enabled="true">
+      <profile name="Annotation profile for product" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="shop-service" />
+        <module name="product" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -38,6 +40,7 @@
       <module name="discovery" options="-parameters" />
       <module name="oauth-server" options="-parameters" />
       <module name="oauth-service" options="-parameters" />
+      <module name="product" options="-parameters" />
       <module name="shop-service" options="-parameters" />
     </option>
   </component>
