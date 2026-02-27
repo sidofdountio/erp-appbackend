@@ -1,6 +1,13 @@
-# Application yml in Product service module
+# PRODUCT SERVICE CONFIG
 spring:
   application:
     name: product-service
   config:
     import: optional:configserver:http://localhost:8888
+
+# GATEWAY CONFIG
+application:
+  config:
+    catalogue-url: http://localhost:9009/api/v1/bis/catalogues
+    shop-url: http://localhost:9009/api/v1/bis/shops
+    user-url: http://localhost:9009/api/v1/bis/users

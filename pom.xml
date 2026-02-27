@@ -11,8 +11,8 @@
   <name>erp-app</name>
   <url>https://sidof.xyz</url>
   <modules>
-    <module>oauth-server</module>
-    <module>shops</module>
+<!--    <module>oauth-server</module>-->
+<!--    <module>shops</module>-->
   </modules>
 
 

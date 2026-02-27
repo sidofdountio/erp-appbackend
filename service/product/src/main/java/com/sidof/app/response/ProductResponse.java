@@ -26,14 +26,12 @@ public class ProductResponse {
     private BigDecimal price;
     private double availableQuantity;
 
-    @Column(unique = true, nullable = false)
     private String sku;
     private boolean active ;
 
 
     private UUID shopId;
     private String categoryName;
-
 
     private String createdBy;
 

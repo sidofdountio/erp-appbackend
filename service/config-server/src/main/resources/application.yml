@@ -13,3 +13,8 @@ spring:
       server:
         native:
           search-locations: classpath:/configurations
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

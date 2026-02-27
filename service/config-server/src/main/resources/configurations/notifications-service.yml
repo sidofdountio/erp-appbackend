@@ -1,0 +1,73 @@
+# ===================================================================
+# NOTIFICATION SERVICE
+# ===================================================================
+
+server:
+  port: 9008
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/notificationdb
+    username: sidof
+    password: sidof1/@
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate Settings
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  # KAFKA
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: paymentGroup,orderGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: orderConfirmation:com.bis.app.kafka.OrderConfirmation,PaymentNotificationRequest:com.bis.app.kafka.PaymentNotificationRequest
+
+    mail:
+      host: localhost
+      port: 1025
+      username: sidof
+      password: sidof
+      default-encoding: UTF-8-
+      properties:
+        mail:
+          protocol: smtp
+          mime:
+            charset: UTF
+          smtp:
+            connectiontimeout: 10000
+            timeout: 10000
+            writetimeout: 10000
+            auth: true
+            ssl:
+              trust: "*"
+            starttls:
+              enable: true
+
+
+  # Security (OAuth2)
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:9000
+
+# Eureka Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+

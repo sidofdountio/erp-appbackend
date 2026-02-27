@@ -1,6 +1,6 @@
-# ===================================================================
+# ============================================================
 # PRODUCT SERVICE CONFIGURATION (Managed by Config Server)
-# ===================================================================
+# =============================================================
 
 server:
   port: 9002
@@ -21,6 +21,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
 #        FLYWAY
   flyway:
     baseline-on-migrate: true
@@ -33,12 +34,22 @@ spring:
     config:
       override.system-properties: false
 
-  # Security (OAuth2)
+  # Security
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000
+
+  #Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.add.type.headers: false
+
 
 # Eureka Discovery
 eureka:
@@ -49,12 +60,8 @@ eureka:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
-# Optional: Add Actuator for health monitoring
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health,info,beans"
-  endpoint:
-    health:
-      show-details: always
+#GATEWAY
+application:
+  config:
+    user-url: http://localhost:9009/api/v1/bis/users
+    shop-url: http://localhost:9009/api/v1/bis/shops

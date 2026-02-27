@@ -1,0 +1,19 @@
+@Component
+public class OAuth2FeignRequestInterceptor implements RequestInterceptor {
+
+    private final ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+
+    public OAuth2FeignRequestInterceptor(ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+        this.authorizedClientManager = authorizedClientManager;
+    }
+
+    @Override
+    public void apply(RequestTemplate template) {
+        // Grab JWT from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getCredentials() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getCredentials();
+            template.header("Authorization", "Bearer " + jwt.getTokenValue());
+        }
+    }
+}

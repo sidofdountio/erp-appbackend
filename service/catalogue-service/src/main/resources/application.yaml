@@ -1,0 +1,19 @@
+# Application yml in shop service module
+spring:
+  application:
+    name: catalogue-service
+  config:
+    import: optional:configserver:http://localhost:8888
+
+application:
+  config:
+    customer-url: http://localhost:9009/api/v1/bis/orders
+    product-url: http://localhost:9009/api/v1/bis/products
+    shop-url: http://localhost:9009/api/v1/bis/public/shops
+
+
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

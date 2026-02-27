@@ -1,0 +1,6 @@
+# Application yml in Product service module
+spring:
+  application:
+    name: customer-service
+  config:
+    import: optional:configserver:http://localhost:8888

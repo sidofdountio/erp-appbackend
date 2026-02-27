@@ -6,13 +6,17 @@ package com.sidof.shop_service.request;
  * LinkedIn : @SidofDountio
  * GitHub   : @SidofDountio
  * Version  : V1
- * Licence   : All Right Reserved BIS
  * Since    : 11/26/25
  * </blockquote></pre>
  */
 
 public record ShopsRequest(
         String name,
-        String code
+        String email,
+        String code,
+        String latitude,
+        String longitude
+
 ) {
+
 }

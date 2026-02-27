@@ -38,12 +38,9 @@ eureka:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
-# Optional: Add Actuator for health monitoring
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health,info,beans"
-  endpoint:
-    health:
-      show-details: always
+# GATEWAY
+application:
+  config:
+    user-url: http://localhost:9009/api/v1/bis/users
+
+

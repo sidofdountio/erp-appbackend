@@ -1,6 +1,7 @@
 package com.sidof.shop_service.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -35,7 +36,9 @@ public class Shop {
     private String name;
     private String code;
 
-//    private String email;
+    @Column(unique = true,nullable = false)
+    private String email;
+
 //    private String managerName;
 //    @Column(name = "contact_phone")
 //    private String contactPhone;
@@ -44,8 +47,10 @@ public class Shop {
 //    @Enumerated(EnumType.STRING)
 //    private ShopCategory category;
 
-//    private String latitude;
-//    private String longitude;
+    private boolean shopOpen;
+
+    private String latitude;
+    private String longitude;
 
     @Column(name = "user_id",nullable = false,unique = true)
     private Long userId;

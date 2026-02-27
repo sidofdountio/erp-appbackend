@@ -37,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/v1/shops/**").hasAuthority("SCOPE_SHOP_READ")
                         .requestMatchers(HttpMethod.POST,"/api/v1/shops/**").hasAuthority("SCOPE_SHOP_WRITE")
                         .requestMatchers(HttpMethod.GET,"/test/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/catalogue/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/public/shops/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -100,4 +102,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", cors);
         return source;
     }
+
+
+
 }

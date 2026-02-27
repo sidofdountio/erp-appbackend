@@ -35,13 +35,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
 
-                        .requestMatchers(HttpMethod.GET,"/api/v1/product/**").hasAuthority("SCOPE_PRODUCT_READ")
-                        .requestMatchers(HttpMethod.GET,"/api/v1/category/**").hasAuthority("SCOPE_PRODUCT_READ")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/products/**").hasAuthority("SCOPE_PRODUCT_READ")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/category/**").hasAuthority("SCOPE_PRODUCT_READ")
 
-                        .requestMatchers(HttpMethod.POST,"/api/v1/product/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/api/v1/category/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/product/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/product/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/bis/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/bis/category/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/bis/product/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/bis/products/**").hasRole("ADMIN")
 
                         .requestMatchers("/actuator/**","/test/**").permitAll()
                         .anyRequest().authenticated()

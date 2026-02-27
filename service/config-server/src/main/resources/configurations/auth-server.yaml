@@ -5,6 +5,8 @@ server:
     include-message: always
 
 spring:
+  profiles:
+    active: dev
   datasource:
     url: jdbc:postgresql://localhost:5433/authdb
     username: sidof
@@ -14,7 +16,7 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: crate-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -34,6 +36,13 @@ eureka:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
+
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+
 # Optional: Add Actuator for health monitoring
 management:
   endpoints:
@@ -43,5 +52,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-

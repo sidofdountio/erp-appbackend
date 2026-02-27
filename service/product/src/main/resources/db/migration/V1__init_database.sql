@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS product
     price              NUMERIC(32, 2),
     available_quantity DOUBLE PRECISION NOT NULL,
     active             BOOLEAN                               DEFAULT TRUE,
+    promotion           BOOLEAN                                         DEFAULT FALSE,
     sku                VARCHAR(255)     NOT NULL UNIQUE,
-    shop_id            UUID             NOT NULL UNIQUE,
 
-    category_id        UUID
-        CONSTRAINT fk_product_category REFERENCES category REFERENCES category (id),
+
+    shop_id            UUID             NOT NULL UNIQUE,
+    category_id UUID
+        CONSTRAINT fk_product_category REFERENCES category (id),
 
     created_at         TIMESTAMP        NOT NULL,
     updated_at         TIMESTAMP        NOT NULL,
@@ -33,6 +35,6 @@ CREATE TABLE IF NOT EXISTS product
 );
 
 
-CREATE INDEX idx_product_shop_id ON product (shop_id);
-CREATE UNIQUE INDEX idx_product_sku ON product (sku);
-CREATE INDEX idx_product_category_id ON product (category_id);
+-- CREATE INDEX idx_product_shop_id ON product (shop_id);
+-- CREATE UNIQUE INDEX idx_product_sku ON product (sku);
+-- CREATE INDEX idx_product_category_id ON product (category_id);

@@ -1,17 +1,21 @@
 package com.sidof.app.controller;
 
+import com.sidof.app.model.Product;
 import com.sidof.app.request.ProductRequest;
 import com.sidof.app.response.ProductResponse;
 import com.sidof.app.service.ProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * <blockquote><pre>
@@ -25,7 +29,7 @@ import java.util.UUID;
  */
 
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/api/v1/bis/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
@@ -33,16 +37,19 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponse> createProduct(
-            @Valid @RequestBody ProductRequest request,
-            Authentication authentication
-    ) {
-        return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
+    public ResponseEntity<ProductResponse> createProduct(@Validated @RequestBody ProductRequest request, Authentication authentication) throws IllegalAccessException {
+        return new ResponseEntity<>(productService.createProduct(request,authentication), HttpStatus.CREATED);
     }
 
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID id) {
-        return ResponseEntity.ok(productService.getProductById(id));
+    @ResponseStatus(OK)
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    @ResponseStatus(OK)
+    @GetMapping("/all")
+    public ResponseEntity<List<Product>> getProducts() {
+        return ResponseEntity.ok(productService.getAllProduct());
     }
 }
