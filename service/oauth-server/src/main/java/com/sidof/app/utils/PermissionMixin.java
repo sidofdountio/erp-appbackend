@@ -1,4 +1,4 @@
-package com.sidof.app.config;
+package com.sidof.app.utils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

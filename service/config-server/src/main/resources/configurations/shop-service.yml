@@ -1,7 +1,6 @@
 # ===================================================================
-# SHOP SERVICE CONFIGURATION (Managed by Config Server)
+# SHOP SERVICE CONFIGURATION
 # ===================================================================
-
 server:
   port: 9001
 
@@ -22,12 +21,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  # Security (OAuth2)
+  # Security
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000
+    strategy: MODE_INHERITABLETHREADLOCAL
 
 # Eureka Discovery
 eureka:
@@ -43,4 +43,7 @@ application:
   config:
     user-url: http://localhost:9009/api/v1/bis/users
 
-
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.sidof.shop_service.client: DEBUG # Use your Feign client package name

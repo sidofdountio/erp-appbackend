@@ -1,5 +1,6 @@
 package com.sidof.shop_service.user;
 
+import com.sidof.shop_service.config.FeignClientInterceptor;
 import com.sidof.shop_service.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +20,12 @@ import java.util.Optional;
 
 @FeignClient(
         name = "user-service",
-        url = "${application.config.user-url}"
+        url = "${application.config.user-url}",
+        configuration = FeignClientInterceptor.class
 )
 public interface UserClient {
 
-    @GetMapping("/{email}")
-    Optional<UserResponse> findUserByEmail(@PathVariable String email);
+    @GetMapping("/username/{username}")
+    Optional<UserResponse> findUserByEmail(@PathVariable String username);
 
 }

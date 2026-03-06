@@ -1,9 +1,6 @@
 package com.sidof.app.response;
 
-import jakarta.persistence.Column;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +15,7 @@ import java.time.LocalDateTime;
  * </blockquote></pre>
  */
 
-@Builder @Getter @Setter
+@Builder @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class UserResponse {
     private Long id;
     private String userUuid;

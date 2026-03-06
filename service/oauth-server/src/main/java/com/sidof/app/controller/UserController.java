@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserServiceImplement userServiceImplement;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/id/{userId}")
     public ResponseEntity<UserResponse> user(@PathVariable Long userId) {
         return new ResponseEntity<>(userServiceImplement.getUser(userId), HttpStatus.OK);
     }
@@ -40,5 +40,10 @@ public class UserController {
     @GetMapping("/{email}")
     public ResponseEntity<UserResponse> userEmail(@PathVariable String email) {
         return new ResponseEntity<>(userServiceImplement.getUserByEmail(email), HttpStatus.OK);
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserResponse> userUsername(@PathVariable String username) {
+        return new ResponseEntity<>(userServiceImplement.getUserByUsername(username), HttpStatus.OK);
     }
 }

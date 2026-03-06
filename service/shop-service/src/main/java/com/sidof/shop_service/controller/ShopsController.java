@@ -1,15 +1,19 @@
 package com.sidof.shop_service.controller;
 
 
+import com.sidof.shop_service.model.Shop;
 import com.sidof.shop_service.request.ShopsRequest;
 import com.sidof.shop_service.response.ShopResponse;
 import com.sidof.shop_service.service.ShopService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,8 +33,10 @@ import java.util.UUID;
 public class ShopsController {
     private final ShopService shopService;
 
+
     @PostMapping
-    public ResponseEntity<ShopResponse> save(@RequestBody ShopsRequest shopsRequest,Authentication authentication) throws IllegalAccessException {
+    @PreAuthorize("hasAuthority('SHOP_WRITE') or hasRole('ADMIN')")
+    public ResponseEntity<ShopResponse> save(@Valid @RequestBody ShopsRequest shopsRequest, Authentication authentication) throws IllegalAccessException {
         return new ResponseEntity<>(shopService.saveNewShop(shopsRequest,authentication), HttpStatus.CREATED);
     }
 
@@ -46,8 +52,7 @@ public class ShopsController {
 
 
     @GetMapping
-    public ResponseEntity<?> read(Authentication authentication) {
-//        shopService.getAllShop();
-        return new ResponseEntity<>("HELLO READ " + authentication.getAuthorities(), HttpStatus.OK);
+    public ResponseEntity<List<Shop>> shops() {
+        return new ResponseEntity<>(shopService.getShops(), HttpStatus.OK);
     }
 }

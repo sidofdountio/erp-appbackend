@@ -1,5 +1,6 @@
 package com.sidof.shop_service.model;
 
+import com.sidof.shop_service.config.Auditable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Shop {
+public class Shop extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -38,20 +39,23 @@ public class Shop {
 
     @Column(unique = true,nullable = false)
     private String email;
-
-//    private String managerName;
-//    @Column(name = "contact_phone")
-//    private String contactPhone;
-
-//    @NotNull
-//    @Enumerated(EnumType.STRING)
-//    private ShopCategory category;
+    @Column(unique = true,nullable = false)
+    private String phoneNumber;
 
     private boolean shopOpen;
+    private boolean locked=false;
+
+    private String city;
+    private String address;
 
     private String latitude;
     private String longitude;
 
-    @Column(name = "user_id",nullable = false,unique = true)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "merchant_id",referencedColumnName = "id", nullable = false,foreignKey = @ForeignKey(name = "fk_shop_merchant"))
+    private Merchant merchant;
+
+//    @Column(name = "user_id",nullable = false,unique = true)
+//    private Long userId;
+
 }

@@ -37,16 +37,8 @@ public class GatewaySecurityConfig {
 
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-
-                        // Public endpoints (no token required)
-                        .pathMatchers("/api/v1/bis/catalogues/**").permitAll()
-                        .pathMatchers("/api/v1/bis/payments/create").permitAll()
-                        .pathMatchers("/api/v1/bis/auth/public").permitAll()
-                        .pathMatchers("/login", "/css/**", "/js/**","/error").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/api/v1/auth/users").permitAll()
-                        .pathMatchers(HttpMethod.PUT, "/api/v1/auth/users").permitAll()
-
-
+//                        .pathMatchers("/login/**").permitAll()
+                        .pathMatchers("/test/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 // Enable JWT resource server

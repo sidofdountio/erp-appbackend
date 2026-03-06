@@ -66,12 +66,12 @@ CODE_CHALLENGE=yyyyy
 Open this URL in your browser (replace challenge):
 
 ```
-http://localhost:9000/oauth2/authorize?response_type=code
-&client_id=shop-app
-&redirect_uri=http://localhost:3000/callback
-&scope=openid%20SHOP_READ%20SHOP_CREATE%20SHOP_WRITE%20PRODUCT_READ
-&code_challenge=YOUR_S256_CHALLENGE
-&code_challenge_method=S256
+http://localhost:9000/oauth2/authorize?response_type=code&client_id=shop&redirect_uri=http://localhost:3000/callback&scope=openid%20SHOP_READ%20SHOP_CREATE%20PRODUCT_CREATE%20%20PRODUCT_READ%20ORDER_CREATE&code_challenge=et7LaEDjeocaADDqW04pgTCF4Kg2WlqGPEA7w6Uo2N0&code_challenge_method=S256
+```
+
+```
+http://localhost:9000/oauth2/authorize?response_type=code&client_id=shop&redirect_uri=http://localhost:3000/callback&scope=openid%20SHOP_READ%20SHOP_CREATE%20PRODUCT_CREATE%20PRODUCT_READ%20ORDER_CREATE&code_challenge=o_IVCcvvYSpRZFlIgQ59FyrXxj6TolZfAX3ocDmTFjs&code_challenge_method=S256
+
 ```
 
 👉 Important:

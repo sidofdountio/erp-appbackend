@@ -55,7 +55,7 @@ public class User implements UserDetails, Principal {
     private String lastName;
 
 
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String username;
 
     private boolean enable=true;

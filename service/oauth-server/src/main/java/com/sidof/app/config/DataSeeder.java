@@ -55,13 +55,13 @@ public class DataSeeder {
     private final RegisteredClientRepository registeredClientRepository;
 
     @Value("${ui.app.url}")
-
     private String redirectUri;
+    //            createDefaultRegisterClient();
 
-    @EventListener(ApplicationReadyEvent.class)
     @Bean
     CommandLineRunner init() {
         return args -> {
+
             createDefaultRegisterClient();
 
             // 1. Create Permissions
@@ -81,6 +81,7 @@ public class DataSeeder {
             // 2. Create Roles
             Role userRole = createRole("USER", Set.of(userRead));
             Role adminRole = createRole("ADMIN", Set.of(userRead, userUpdate, userDelete, productCreate, SHOP_READ, SHOP_WRITE, ORDER_CREATE));
+            Role adminRole2 = createRole("ADMIN", Set.of(productCreate, SHOP_WRITE));
 
             Role managerRole = createRole("MANAGER", Set.of(userRead, userUpdate, userDelete, productCreate, productRead));
             Role merchantRole = createRole("MERCHANT", Set.of(userRead, userUpdate, userDelete, productCreate));
@@ -98,6 +99,19 @@ public class DataSeeder {
                 admin.setEnable(true);
                 admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole(adminRole);
+                userRepository.save(admin);
+            }
+
+            if (userRepository.findByEmail("admin@store.com").isEmpty()) {
+                User admin = new User();
+                admin.setUserUuid(randomUUID().toString());
+                admin.setUsername("admin");
+                admin.setFirstName("Doe");
+                admin.setLastName("admin");
+                admin.setEmail("admin@store.com");
+                admin.setEnable(true);
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setRole(adminRole2);
                 userRepository.save(admin);
             }
 
@@ -145,34 +159,35 @@ public class DataSeeder {
     }
 
     @Transactional
+//    @EventListener(ApplicationReadyEvent.class)
     private void createDefaultRegisterClient() {
         // 1. Check if client already exists
-//        if (registeredClientRepository.findByClientId("backend-client") == null) {
-//            try {
-//                var backendRegisterClient = RegisteredClient.withId(randomUUID().toString())
-//                        .clientId("backend-client")
-//                        .clientSecret(passwordEncoder.encode("backend-secret"))
-//                        .authorizationGrantTypes(types -> {
-//                            types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
-//                            types.add(AuthorizationGrantType.REFRESH_TOKEN);
-//                        })
-//                        .redirectUri("http://localhost:3000/callback")
-//                        .scope(OidcScopes.OPENID)
-//                        .scope(OidcScopes.PROFILE)
-//                        .scope("read")
-//                        .scope("write")
-//                        .scope("SHOP_READ")
-//
-//                        .tokenSettings(TokenSettings.builder()
-//                                .refreshTokenTimeToLive(Duration.ofHours(1))
-//                                .accessTokenTimeToLive(Duration.ofDays(15))
-//                                .build()).build();
-//
-//                registeredClientRepository.save(backendRegisterClient);
-//            } catch (Exception exception) {
-//                log.error(exception.getMessage());
-//            }
-//        }
+        if (registeredClientRepository.findByClientId("backend-client") == null) {
+            try {
+                var backendRegisterClient = RegisteredClient.withId(randomUUID().toString())
+                        .clientId("backend-client")
+                        .clientSecret(passwordEncoder.encode("backend-secret"))
+                        .authorizationGrantTypes(types -> {
+                            types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                            types.add(AuthorizationGrantType.REFRESH_TOKEN);
+                        })
+                        .redirectUri("http://localhost:3000/callback")
+                        .scope(OidcScopes.OPENID)
+                        .scope(OidcScopes.PROFILE)
+                        .scope("read")
+                        .scope("write")
+                        .scope("SHOP_READ")
+
+                        .tokenSettings(TokenSettings.builder()
+                                .refreshTokenTimeToLive(Duration.ofHours(1))
+                                .accessTokenTimeToLive(Duration.ofDays(15))
+                                .build()).build();
+
+                registeredClientRepository.save(backendRegisterClient);
+            } catch (Exception exception) {
+                log.error(exception.getMessage());
+            }
+        }
 
 
         // --- 1. ADMIN DASHBOARD (Internal Management Tool) ---
@@ -231,7 +246,6 @@ public class DataSeeder {
             } catch (Exception e) {
                 log.error("Error creating mobile-app client: {}", e.getMessage());
             }
-
         }
 
 
@@ -248,8 +262,9 @@ public class DataSeeder {
                         .scope("SHOP_READ")
                         .scope("SHOP_CREATE")
                         .scope("PRODUCT_READ")
-                        .scope("ADMIN_WRITE")
+                        .scope("PRODUCT_CREATE")
                         .scope("ORDER_CREATE")
+                        .scope("ORDER_READ")
                         .clientSettings(ClientSettings.builder()
                                 .requireProofKey(true)
                                 .build())

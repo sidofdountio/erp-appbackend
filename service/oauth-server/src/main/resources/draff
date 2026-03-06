@@ -37,3 +37,21 @@ ACTIVATION_URL: http://localhost:3000
 PASSWORD_URL:  http://localhost:3000
 
 ORIGIN: http://localhost:8087/api/v1/fast-gaz
+
+<profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>

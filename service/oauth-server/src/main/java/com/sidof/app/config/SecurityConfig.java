@@ -6,9 +6,12 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.sidof.app.model.Permission;
 import com.sidof.app.model.User;
 import com.sidof.app.service.CustomUserDetailsService;
+import com.sidof.app.utils.HibernatePersistentSetMixin;
+import com.sidof.app.utils.PermissionMixin;
+import com.sidof.app.utils.RoleMixin;
+import com.sidof.app.utils.UserMixin;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -22,6 +25,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -95,19 +99,23 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            DaoAuthenticationProvider daoAuthenticationProvider) throws Exception { // Inject it here
+            DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
 
+        http.csrf(AbstractHttpConfigurer::disable);
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
         // Link your DB-backed provider to this chain
         http.authenticationProvider(daoAuthenticationProvider);
-
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**", "/js/**","/error").permitAll()
+                // Allow your User API to be accessed by internal services
+                .requestMatchers("/api/v1/bis/users/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/logout").permitAll()
                 .requestMatchers("/mfa").hasAuthority("MFA_REQUIRED")
                 .anyRequest().authenticated()
         );
+
+        // ADD THIS TO ALLOW THE AUTH SERVICE TO ACCEPT JWT TOKENS
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         http.formLogin(login -> login
                 .loginPage("/login")
@@ -118,7 +126,7 @@ public class SecurityConfig {
 
         http.logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("http://localhost:9000/login?logout") // Redirect back to login
+                .logoutSuccessUrl("http://localhost:9000/login?logout") // Redirect back to log in
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)
         );
@@ -237,8 +245,17 @@ public class SecurityConfig {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
 
                 // 1. Get the authorities using your existing method
-                context.getClaims().claims(claims ->
-                        claims.put("authorities", getAuthorities(context)));
+
+                List<String> authorities = context.getPrincipal()
+                        .getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList();
+
+                context.getClaims().claim("authorities", authorities);
+//                context.getClaims().claims(claims ->
+//                        claims.put("authorities", getAuthorities(context))
+//                );
 
                 // 2. Get the Principal and cast it to your AppUser
                 Object principal = context.getPrincipal().getPrincipal();
@@ -248,7 +265,7 @@ public class SecurityConfig {
                         claims.put("user_uuid", user.getUserUuid());
                         claims.put("full_name", user.getFullName());
                         claims.put("mfa_enabled", user.isMfa());
-                        claims.put("user_email", context.getPrincipal().getName());
+                        claims.put("user_email", user.getEmail());
                         claims.put("mfa_verified", user.isMfaVerified());
                     });
                 }

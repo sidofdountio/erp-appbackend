@@ -62,4 +62,16 @@ public class UserServiceImplement {
                 .build();
 
     }
+
+    public UserResponse getUserByUsername(String username) {
+        var user = userRepository.findByUsername(username).orElseThrow(() -> {
+            log.error("User does match with these provide USERNAME {}", username);
+            return new UserException(String.format("User does match with these provide USERNAME %S", username));
+        });
+        log.info("Fetching user by USERNAME {}", username);
+        return UserResponse.builder()
+                .id(user.getId()).userUuid(user.getUserUuid()).email(user.getEmail()).firstName(user.getFirstName()).lastName(user.getLastName()).username(user.getUsername()).enable(user.isEnable()).accountLocked(user.isAccountLocked()).mfa(user.isMfa()).mfaVerified(user.isMfaVerified()).mfaSecret(user.getMfaSecret()).lastLogin(user.getLastLogin())
+                .build();
+
+    }
 }

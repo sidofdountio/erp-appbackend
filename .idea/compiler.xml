@@ -12,6 +12,20 @@
         <module name="gateway-service" />
         <module name="oauth-server" />
       </profile>
+      <profile name="Annotation profile for product" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="product" />
+        <module name="payment-service" />
+        <module name="order-service" />
+        <module name="notification-service" />
+        <module name="customer" />
+      </profile>
       <profile name="Annotation profile for shop-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -19,13 +33,8 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
-        <module name="product" />
-        <module name="payment-service" />
         <module name="catalogue-service" />
         <module name="shop-service" />
-        <module name="order-service" />
-        <module name="notification-service" />
-        <module name="customer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

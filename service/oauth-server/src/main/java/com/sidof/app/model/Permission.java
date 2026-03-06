@@ -24,8 +24,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Permission {
     @Id
-    @SequenceGenerator(name = "permission_seq", allocationSize = 50, sequenceName = "permission_seq")
-    @GeneratedValue(generator = "permission_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "permission_id_sequence", allocationSize = 1, sequenceName = "permission_id_sequence")
+    @GeneratedValue(generator = "permission_id_sequence", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(unique = true)

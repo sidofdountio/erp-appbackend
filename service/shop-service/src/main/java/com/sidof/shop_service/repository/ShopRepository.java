@@ -2,6 +2,7 @@ package com.sidof.shop_service.repository;
 
 import com.sidof.shop_service.model.Shop;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,6 @@ import java.util.UUID;
  * </blockquote></pre>
  */
 
-public interface ShopRepository extends JpaRepository<Shop, UUID> {
+public interface ShopRepository extends JpaRepository<Shop, UUID>, PagingAndSortingRepository<Shop, UUID> {
     Optional<Shop> findByEmail(String email);
 }

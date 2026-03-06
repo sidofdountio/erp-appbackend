@@ -1,20 +1,10 @@
 # Application yml in auth server service module
 spring:
   application:
-    name: auth-server
-  profiles:
-    active: ${ACTIVE_PROFILE:dev}
+    name: auth-service
   config:
     import: optional:configserver:http://localhost:8888
-#keys:
-#  private: ${PRIVATE_KEY}
-#  public: ${PUBLIC_KEY}
-#
+
 ui:
   app:
-    url: ${UI_APP_URL}
-#
-#logging:
-#  level:
-#    root: INFO
-#    org.springframework.security: trace
+    url: http://localhost:3000

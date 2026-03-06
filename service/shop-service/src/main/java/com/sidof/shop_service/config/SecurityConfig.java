@@ -4,9 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,22 +30,29 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
+    /**
+     * SHOP SECURITY CONFIG
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http.csrf(AbstractHttpConfigurer::disable);
         http.cors(cors->cors.configurationSource(corsConfigurationSource()));
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET,"/api/v1/shops/**").hasAuthority("SCOPE_SHOP_READ")
-                        .requestMatchers(HttpMethod.POST,"/api/v1/shops/**").hasAuthority("SCOPE_SHOP_WRITE")
-                        .requestMatchers(HttpMethod.GET,"/test/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/catalogue/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/bis/public/shops/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/bis/shops/**").hasAuthority("SHOP_READ")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/bis/shops/**").hasAuthority("SHOP_WRITE")
+                        .requestMatchers("/api/v1/bis/public/shops/**", "/test/**", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                );
+//                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+
         return http.build();
     }
 
@@ -59,7 +69,8 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:9001",
                 "http://localhost:9000",
-                "http://127.0.0.1:9000",
+                "http://127.0.0.1:9009",
+                "http://localhost:9009",
                 "http://127.0.0.1:9001",
                 "http://195.231.19.75:3000",
                 "https://195.231.19.75:3000"
@@ -101,6 +112,25 @@ public class SecurityConfig {
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);
         return source;
+    }
+
+
+    /**
+     * Maps the custom "authorities" claim from the JWT into Spring Security.
+     */
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+        // Match the claim name you set in the Auth Service Customizer
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+
+        // Set prefix to "" because your User entity already adds "ROLE_" (e.g., ROLE_ADMIN)
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
 

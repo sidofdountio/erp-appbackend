@@ -95,7 +95,7 @@ ALTER TABLE oauth2_authorization_consent
 -- =============================================================
 --         PERMISSION  table
 -- =============================================================
-CREATE SEQUENCE IF NOT EXISTS permission_id_sequence START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS permission_id_sequence START WITH 1 INCREMENT BY 1;
 
 DROP TABLE IF EXISTS permission CASCADE;
 
