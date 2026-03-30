@@ -1,0 +1,53 @@
+# ===================================================================
+# SHOP SERVICE - PRODUCTION PROFILE
+# ===================================================================
+
+server:
+  port: 9001
+  error:
+    include-message: never
+
+spring:
+  datasource:
+#    url: jdbc:postgresql://${SERVER_IP}:5434/shopdb
+    url: ${DB_SHOP_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Points to your Auth Service container name
+          issuer-uri: http://auth-service:9000
+    strategy: MODE_INHERITABLETHREADLOCAL
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+application:
+  config:
+    # Use the Gateway service name within the Docker network
+    user-url: http://api-gateway:9009/api/v1/bis/users
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    # Keep DEBUG only for your specific logic if troubleshooting
+    com.sidof.shop_service.client: DEBUG

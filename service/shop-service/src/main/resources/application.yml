@@ -1,9 +1,11 @@
 # Application yml in shop service module
 spring:
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
   application:
     name: shop-service
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
 
 logging:
   level:

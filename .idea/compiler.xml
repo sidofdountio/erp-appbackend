@@ -8,11 +8,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="discovery" />
+        <module name="auth-service" />
+        <module name="eureka-server" />
         <module name="gateway-service" />
-        <module name="oauth-server" />
+        <module name="discovery" />
       </profile>
-      <profile name="Annotation profile for product" enabled="true">
+      <profile name="Annotation profile for shop-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -22,25 +23,19 @@
         </processorPath>
         <module name="product" />
         <module name="payment-service" />
+        <module name="catalogue-service" />
+        <module name="shop-service" />
         <module name="order-service" />
         <module name="notification-service" />
         <module name="customer" />
-      </profile>
-      <profile name="Annotation profile for shop-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-        </processorPath>
-        <module name="catalogue-service" />
-        <module name="shop-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="auth-server" target="25" />
       <module name="demo" target="25" />
+      <module name="erp-app" target="1.5" />
       <module name="oauth" target="1.5" />
+      <module name="oauth-server" target="17" />
       <module name="oauth-service" target="25" />
       <module name="restaurant" target="25" />
       <module name="shops" target="17" />
@@ -49,11 +44,13 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-server" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
       <module name="catalogue-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="customer" options="-parameters" />
       <module name="demo" options="-parameters" />
       <module name="discovery" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="notification-service" options="-parameters" />
       <module name="oauth-server" options="-parameters" />

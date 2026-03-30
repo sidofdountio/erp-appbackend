@@ -32,19 +32,16 @@ public class GatewaySecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http
-
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-//                        .pathMatchers("/login/**").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers("/test/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 // Enable JWT resource server
-//                .formLogin(Customizer.withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-        ;
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
     }
@@ -58,12 +55,15 @@ public class GatewaySecurityConfig {
         // Add your Angular port (4200) here too!
         cors.setAllowedOrigins(List.of(
                 "http://localhost:3000",
+                "http://localhost:3001",
                 "http://localhost:4200",
                 "http://localhost:9000",
-                "https://195.231.19.75:3000"
+                "https://195.231.19.75:3000",
+                "https://195.231.19.75:3001",
+                "https://kapexpert.cloud:3001"
         ));
 
-        cors.setAllowedHeaders(List.of("*")); // For development, allow all headers
+        cors.setAllowedHeaders(List.of("*"));
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         cors.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION));
         cors.setMaxAge(3600L);

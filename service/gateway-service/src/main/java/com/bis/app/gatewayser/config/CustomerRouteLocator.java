@@ -30,6 +30,7 @@ public class CustomerRouteLocator {
 
                 // 2. AUTH SERVICE (Usually public or login endpoints)
                 .route("auth-service", r -> r.path("/api/v1/bis/users/**")
+                        .filters(f -> f.tokenRelay().preserveHostHeader())
                         .uri("lb://AUTH-SERVICE"))
 
                 // 3. CUSTOMER SERVICE

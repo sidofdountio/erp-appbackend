@@ -1,0 +1,34 @@
+# ===================================================================
+# EUREKA SERVER - PRODUCTION PROFILE
+# ===================================================================
+
+server:
+  port: 8761
+
+eureka:
+  instance:
+    # Use the Docker container name 'eureka-server' for internal DNS
+    hostname: eureka-server
+    prefer-ip-address: true
+
+  client:
+    # In a single-node setup, we still keep these false
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      # This is the address other services will use to find Eureka
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+  server:
+    # Wait time for instances to register before becoming fully operational
+    wait-time-in-ms-when-sync-empty: 0
+    # In production, you might want to disable self-preservation if you
+    # have frequent deployments, but usually true is safer.
+    enable-self-preservation: true
+
+# Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

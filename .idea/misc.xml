@@ -24,10 +24,16 @@
         <option value="$PROJECT_DIR$/service/notification-service/pom.xml" />
         <option value="$PROJECT_DIR$/service/gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/service/oauth-server/pom.xml" />
+        <option value="$PROJECT_DIR$/../central-market-backend/services/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/../central-market-backend/services/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/service/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/service/eureka-server/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/../central-market-backend/services/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/restaurant/pom.xml" />
       </set>
     </option>

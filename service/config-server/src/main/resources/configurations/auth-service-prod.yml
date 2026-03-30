@@ -1,0 +1,53 @@
+# ===================================================================
+# AUTH SERVICE : PRODUCTION PROFILE
+# ===================================================================
+
+server:
+  port: 9000
+  error:
+    # Security: Do not leak stack traces or binding errors to the client in prod
+    include-binding-errors: never
+    include-message: never
+
+spring:
+  datasource:
+    # Uses the port 5434 and IP defined in your server's .env file
+#    url: jdbc:postgresql://${SERVER_IP}:5434/authdb
+    url: ${DB_AUTH_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: false # Disabled in prod to prevent log flooding and save CPU
+    hibernate:
+      # CRITICAL: 'validate' only checks if the schema matches your code.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  security:
+    oauth2:
+      authorizationserver:
+        # This must be the public URL or the internal Docker service name
+        issuer: http://auth-service:9000
+
+# Eureka Discovery
+eureka:
+  client:
+    service-url:
+      # Points to the 'eureka-server' container name in the Docker network
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# Performance: Reduce logging verbosity to save disk space
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: ERROR
